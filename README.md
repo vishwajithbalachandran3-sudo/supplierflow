@@ -1,0 +1,37 @@
+# Supplierflow
+
+A responsive, browser-local prototype for purchasing teams who track supplier shipments in Excel. Built with plain HTML, CSS, and JavaScript, with a locally bundled SheetJS spreadsheet reader.
+
+## Preview
+
+Serve `dist/` using any static HTTP server. For example, from this folder:
+
+```sh
+python -m http.server 4173 --directory dist
+```
+
+Open http://localhost:4173. No build step is required.
+
+## Working features
+
+- Overview metrics, purchase order filters, search, sorting, pagination, supplier views, and order details.
+- Local XLSX, XLS, and CSV import with worksheet selection, field mapping, date/email validation, duplicate detection, and a downloadable Excel template.
+- Personalized email templates and drafts. Drafts can be opened with a local email application. Simulated sending is explicitly labeled and never delivers email.
+- Supplier reply recording, revised shipping dates, order completion, and associated conversation history.
+- Configurable reminder and escalation rules. A manual demo check generates drafts, flags escalations, and excludes shipped orders and existing drafts.
+- Local persistence, CSV export, full workspace JSON backup/restore, sample-data reset confirmation, and accessible responsive dialogs.
+
+## Prototype boundaries
+
+No mailbox, email API, server database, background worker, or scheduler is connected. Nothing is sent automatically. Conversations start as example data and can be recorded manually. Local state is specific to the current browser and origin. A production application needs provider OAuth, a shared database, a scheduled backend job, thread-based reply matching, delivery deduplication, and appropriate access controls. Supplier `.example` email addresses in the sample dataset are deliberately non-deliverable.
+
+Spreadsheet dates support native Excel dates, `YYYY-MM-DD`, and `MM/DD/YYYY`. Imports require Supplier, PO, Item, Ship date, and Email. Existing PO/item pairs are skipped rather than overwritten. Individual files are limited to 10 MB and 5,000 rows.
+
+## Source
+
+- `dist/core.js`: date handling, validation, templates, automation decisions, and sample data.
+- `dist/app.js`: screens, accessible UI, imports, local persistence, and user actions.
+- `dist/styles.css`: responsive visual system.
+- `dist/vendor/xlsx.full.min.js`: SheetJS CE 0.20.3, Apache-2.0, distributed by cdn.sheetjs.com.
+
+The deployment is configured by `.openai/hosting.json`.
