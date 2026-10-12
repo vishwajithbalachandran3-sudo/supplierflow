@@ -15,18 +15,17 @@ test('revised dates and shipment completion control overdue classification',()=>
   order.revisedDate='2026-10-10';assert.equal(C.overdue(order,'2026-10-11'),true);
   order.shipped=true;assert.equal(C.overdue(order,'2026-10-11'),false);
 });
-test('import maps common headers and rejects invalid rows and duplicate items',()=>{
-  const map=C.mapHeaders(['Vendor Name','PO Number','Description','Shipping Date','Email Address','Status']);
-  assert.deepEqual(map,{supplier:0,po:1,item:2,shipDate:3,email:4,status:5});
-  const valid=['Atlas','PO-1','Bearing','2026-10-02','ops@example.com','Shipped'];
+test('import maps the required four columns and rejects invalid rows and duplicate POs',()=>{
+  const map=C.mapHeaders(['Vendor Name','Vendor Code','PO Number','Shipping Date','Status']);
+  assert.deepEqual(map,{supplier:0,supplierCode:1,po:2,shipDate:3,status:4});
+  const valid=['Atlas','SUP-01','PO-1','2026-10-02','Shipped'];
   assert.equal(C.validateRows([valid],map).orders[0].shipped,true);
   assert.equal(C.validateRows([valid,valid],map).errors.length,1);
-  const wrong=[...valid];wrong[4]='invalid';assert.match(C.validateRows([wrong],map).errors[0],/valid supplier email/);
-  wrong[4]='ops@example.com';wrong[3]='2026-02-31';assert.match(C.validateRows([wrong],map).errors[0],/Excel date/);
+  const wrong=[...valid];wrong[3]='2026-02-31';assert.match(C.validateRows([wrong],map).errors[0],/Excel date/);
 });
 test('automation respects no-reply delays, revised dates, drafts, and escalation',()=>{
   const now=new Date('2026-10-11T12:00:00Z'),s=structuredClone(C.defaults);
-  const order={shipDate:'2026-10-01',shipped:false,messages:[]};
+  const order={shipDate:'2026-10-01',shipped:false,messages:[],email:'ops@example.com',automationEnabled:true};
   assert.equal(C.automationAction(order,s,now),'initial');
   order.lastSent='2026-10-10T12:00:00Z';order.firstSent=order.lastSent;
   assert.equal(C.automationAction(order,s,now),null);
@@ -39,6 +38,16 @@ test('automation respects no-reply delays, revised dates, drafts, and escalation
   order.revisedDate='2026-10-10';assert.equal(C.automationAction(order,s,now),null);
   order.draft={body:'test'};assert.equal(C.automationAction(order,s,now),null);
   delete order.draft;order.shipped=true;assert.equal(C.automationAction(order,s,now),null);
+});
+test('automation requires supplier email and honors the supplier toggle',()=>{
+  const s=structuredClone(C.defaults),o={shipDate:'2026-12-01',shipped:false,messages:[],automationEnabled:true,email:''};
+  assert.equal(C.automationAction(o,s,new Date('2026-10-12T12:00:00Z')),null);
+  o.email='ops@example.com';assert.equal(C.automationAction(o,s,new Date('2026-10-12T12:00:00Z')),'initial');
+  o.automationEnabled=false;assert.equal(C.automationAction(o,s,new Date('2026-10-12T12:00:00Z')),null);
+});
+test('supplier replies detect revised dates and shipment confirmations',()=>{
+  assert.deepEqual(C.analyzeReply('We will ship on October 22, 2026.'),{shipped:false,revisedDate:'2026-10-22',status:'date_found'});
+  assert.equal(C.analyzeReply('The PO has shipped. Tracking follows.').shipped,true);
 });
 test('exports quote cells and neutralize spreadsheet formula prefixes',()=>{
   assert.equal(C.csvCell('=HYPERLINK("x")'),'"\'=HYPERLINK(""x"")"');
