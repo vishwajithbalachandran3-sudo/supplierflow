@@ -73,7 +73,7 @@ function render() {
   document.title=`${pages[ui.page]} · Supplierflow`;
   $('#app').innerHTML=`<aside class="sidebar ${ui.mobile?'open':''}" aria-label="Main navigation">
     <a class="logo" href="#orders" data-action="nav" data-page="orders"><span class="brandmark"><svg viewBox="0 0 30 30" aria-hidden="true"><path d="M3 6h22l-6 8H3zm24 18H5l6-8h16z" fill="currentColor"/></svg></span>Supplierflow</a>
-    <div class="workspace"><div class="workspace-avatar">${icon('building')}</div><div><div class="workspace-name">${esc(state.settings.company)}</div><small>Purchasing</small></div></div>
+    <div class="workspace"><div class="workspace-avatar">${icon('building')}</div><div><div class="workspace-name">Purchasing</div></div></div>
     <div class="nav-label">Operations</div><nav class="nav-group">${navButton('orders','box','Purchase orders',state.orders.length)}${navButton('followups','send','Follow-ups',draftCount||'')}${navButton('inbox','inbox','Supplier inbox',replyCount||'')}${navButton('suppliers','users','Suppliers')}${navButton('overview','grid','Reports')}</nav>
     <div class="nav-label">Configuration</div><nav class="nav-group">${navButton('automations','workflow','Automation rules')}${navButton('templates','file','Email templates')}</nav>
     <div class="sidebar-bottom"><button class="mailbox-status" data-action="connection"><span class="mailbox-indicator"></span><span>${state.settings.emailProvider?`${state.settings.emailProvider==='gmail'?'Gmail':'Outlook'} selected`:'Email not configured'}<small>${state.settings.fromEmail?esc(state.settings.fromEmail):'Choose provider and From address'}</small></span>${icon('chevron')}</button>
