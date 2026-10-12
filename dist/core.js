@@ -62,6 +62,7 @@
   const aliases = {
     supplier: ['supplier', 'suppliername', 'vendor', 'vendorname', 'company'],
     supplierCode: ['suppliercode', 'vendorcode', 'supplierid', 'vendorid', 'code'],
+    email: ['supplieremail', 'vendoremail', 'email', 'emailaddress', 'contactemail'],
     po: ['po', 'ponumber', 'purchaseorder', 'purchaseordernumber', 'order', 'ordernumber'],
     shipDate: ['shipdate', 'shippingdate', 'shippingdates', 'expectedshipdate', 'expectedshippingdate', 'duedate', 'deliverydate', 'promiseddate'],
     status: ['status', 'shippingstatus', 'orderstatus', 'shipmentstatus']
@@ -72,17 +73,18 @@
   }
   function validateRows(rows, mapping) {
     const errors = [], orders = [], seen = new Set();
-    for (const field of ['supplier', 'supplierCode', 'po', 'shipDate']) if (mapping[field] < 0 || mapping[field] === undefined) errors.push(`Select a column for ${field === 'shipDate' ? 'shipping date' : field === 'supplierCode' ? 'supplier code' : field}.`);
+    for (const field of ['supplier', 'supplierCode', 'email', 'po', 'shipDate']) if (mapping[field] < 0 || mapping[field] === undefined) errors.push(`Select a column for ${field === 'shipDate' ? 'shipping date' : field === 'supplierCode' ? 'supplier code' : field === 'email' ? 'supplier email' : field}.`);
     if (errors.length) return { errors, orders };
     const mapped = Object.values(mapping).filter(n => n >= 0);
     if (new Set(mapped).size !== mapped.length) return { errors: ['Each field must use a different column.'], orders: [] };
     rows.forEach((row, index) => {
       if (row.every(v => v === '' || v == null)) return;
       const value = f => String(row[mapping[f]] ?? '').trim();
-      const order = { supplier: value('supplier'), supplierCode: value('supplierCode'), po: value('po'), shipDate: parseDate(row[mapping.shipDate]), email: '', shipped: /^(shipped|delivered|complete|completed)$/i.test(value('status')), automationEnabled: true };
-      const missing = ['supplier', 'supplierCode', 'po'].filter(f => !order[f]);
+      const order = { supplier: value('supplier'), supplierCode: value('supplierCode'), po: value('po'), shipDate: parseDate(row[mapping.shipDate]), email: value('email'), shipped: /^(shipped|delivered|complete|completed)$/i.test(value('status')), automationEnabled: true };
+      const missing = ['supplier', 'supplierCode', 'email', 'po'].filter(f => !order[f]);
       if (missing.length) { errors.push(`Row ${index + 2}: missing ${missing.join(', ')}.`); return; }
       if ([order.supplier, order.supplierCode, order.po].some(v => v.length > 500)) { errors.push(`Row ${index + 2}: text fields must be under 500 characters.`); return; }
+      if (order.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.email)) { errors.push(`Row ${index + 2}: enter a valid supplier email address.`); return; }
       if (!order.shipDate) { errors.push(`Row ${index + 2}: use an Excel date, YYYY-MM-DD, or MM/DD/YYYY.`); return; }
       const key = `${order.supplierCode.toLowerCase()}|${order.po.toLowerCase()}`;
       if (seen.has(key)) { errors.push(`Row ${index + 2}: duplicate supplier code and PO (${order.po}).`); return; }

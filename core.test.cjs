@@ -15,13 +15,13 @@ test('revised dates and shipment completion control overdue classification',()=>
   order.revisedDate='2026-10-10';assert.equal(C.overdue(order,'2026-10-11'),true);
   order.shipped=true;assert.equal(C.overdue(order,'2026-10-11'),false);
 });
-test('import maps the required four columns and rejects invalid rows and duplicate POs',()=>{
-  const map=C.mapHeaders(['Vendor Name','Vendor Code','PO Number','Shipping Date','Status']);
-  assert.deepEqual(map,{supplier:0,supplierCode:1,po:2,shipDate:3,status:4});
-  const valid=['Atlas','SUP-01','PO-1','2026-10-02','Shipped'];
+test('import maps the required five columns and rejects invalid rows and duplicate POs',()=>{
+  const map=C.mapHeaders(['Vendor Name','Vendor Code','Supplier Email','PO Number','Shipping Date','Status']);
+  assert.deepEqual(map,{supplier:0,supplierCode:1,email:2,po:3,shipDate:4,status:5});
+  const valid=['Atlas','SUP-01','ops@atlas.example','PO-1','2026-10-02','Shipped'];
   assert.equal(C.validateRows([valid],map).orders[0].shipped,true);
   assert.equal(C.validateRows([valid,valid],map).errors.length,1);
-  const wrong=[...valid];wrong[3]='2026-02-31';assert.match(C.validateRows([wrong],map).errors[0],/Excel date/);
+  const wrong=[...valid];wrong[4]='2026-02-31';assert.match(C.validateRows([wrong],map).errors[0],/Excel date/);
 });
 test('automation respects no-reply delays, revised dates, drafts, and escalation',()=>{
   const now=new Date('2026-10-11T12:00:00Z'),s=structuredClone(C.defaults);
