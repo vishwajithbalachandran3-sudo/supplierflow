@@ -1,6 +1,6 @@
 # Supplierflow
 
-A responsive, browser-local prototype for purchasing teams who track supplier shipments in Excel. Built with plain HTML, CSS, and JavaScript, with a locally bundled SheetJS spreadsheet reader.
+A responsive, browser-local application prototype for purchasing teams who track supplier shipments in Excel. It opens directly to a purchase order register, with persistent navigation, independent scrolling, and an adjacent order inspector. Built with plain HTML, CSS, and JavaScript, with a locally bundled SheetJS spreadsheet reader.
 
 ## Preview
 
@@ -15,6 +15,9 @@ Open http://localhost:4173. No build step is required.
 ## Working features
 
 - Overview metrics, purchase order filters, search, sorting, pagination, supplier views, and order details.
+- A dedicated follow-up queue for due messages, saved drafts, and escalations.
+- Manual purchase order creation and editing with duplicate, date, and email validation.
+- A fixed application workspace with an order inspector on desktop and order drawers on smaller screens.
 - Local XLSX, XLS, and CSV import with worksheet selection, field mapping, date/email validation, duplicate detection, and a downloadable Excel template.
 - Personalized email templates and drafts. Drafts can be opened with a local email application. Simulated sending is explicitly labeled and never delivers email.
 - Supplier reply recording, revised shipping dates, order completion, and associated conversation history.
@@ -32,6 +35,8 @@ Spreadsheet dates support native Excel dates, `YYYY-MM-DD`, and `MM/DD/YYYY`. Im
 - `dist/core.js`: date handling, validation, templates, automation decisions, and sample data.
 - `dist/app.js`: screens, accessible UI, imports, local persistence, and user actions.
 - `dist/styles.css`: responsive visual system.
+- `dist/workspace.js`: order inspector, follow-up queue, manual order forms, and application startup.
+- `dist/workspace.css`: fixed application layout, compact controls, and responsive workspace panels.
 - `dist/vendor/xlsx.full.min.js`: SheetJS CE 0.20.3, Apache-2.0, distributed by cdn.sheetjs.com.
 
 The deployment is configured by `.openai/hosting.json`.
