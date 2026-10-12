@@ -26,7 +26,7 @@ Open http://localhost:4173. No build step is required.
 
 ## Prototype boundaries
 
-No mailbox, email API, server database, background worker, or scheduler is connected. Nothing is sent automatically. Conversations start as example data and can be recorded manually. Local state is specific to the current browser and origin. A production application needs provider OAuth, a shared database, a scheduled backend job, thread-based reply matching, delivery deduplication, and appropriate access controls. Supplier `.example` email addresses in the sample dataset are deliberately non-deliverable.
+The static deployment prepares drafts by default. Optional Gmail automation is provided in `gmail-apps-script/`: after the owner deploys and authorizes it, Supplierflow can synchronize orders, send due messages, and inspect PO-linked Gmail replies on a six-hour trigger. Conversations start as example data and can be recorded manually. Local state is specific to the current browser and origin. A production application needs provider OAuth, a shared database, a scheduled backend job, thread-based reply matching, delivery deduplication, and appropriate access controls. Supplier `.example` email addresses in the sample dataset are deliberately non-deliverable.
 
 Spreadsheet dates support native Excel dates, `YYYY-MM-DD`, and `MM/DD/YYYY`. Imports require Supplier Name, Supplier Code, Supplier Email, Shipping Date, and PO Number. Imported email addresses become the recipients for automated messages and can be corrected later in the Suppliers screen. Automation settings are retained by supplier code when imported orders are replaced. Existing supplier-code/PO pairs are skipped when adding rows. Individual files are limited to 10 MB and 5,000 rows.
 
@@ -37,6 +37,8 @@ Spreadsheet dates support native Excel dates, `YYYY-MM-DD`, and `MM/DD/YYYY`. Im
 - `dist/styles.css`: responsive visual system.
 - `dist/workspace.js`: order inspector, follow-up queue, manual order forms, and application startup.
 - `dist/workspace.css`: fixed application layout, compact controls, and responsive workspace panels.
+- `gmail-apps-script/Code.gs`: optional Gmail sender, scheduled checks, and reply matching.
+- `gmail-apps-script/appsscript.json`: required Gmail and trigger permissions.
 - `dist/vendor/xlsx.full.min.js`: SheetJS CE 0.20.3, Apache-2.0, distributed by cdn.sheetjs.com.
 
 The deployment is configured by `.openai/hosting.json`.
