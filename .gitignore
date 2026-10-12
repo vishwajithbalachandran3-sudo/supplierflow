@@ -1,5 +1,4 @@
-node_modules/
-.qa/
-*.log
+﻿# Local and deployment artifacts
 *.tar.gz
-*.zip
+.qa/*.png
+.qa/*.xlsx
