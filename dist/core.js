@@ -4,6 +4,7 @@
   const defaults = {
     enabled: true, reminderDays: 2, escalationDays: 5, maxReminders: 3,
     senderName: 'Purchasing team', company: 'Acme Operations',
+    emailProvider: '', fromEmail: '', ccEmails: '',
     templates: {
       initial: { subject: 'Please confirm shipping date · {{po}}', body: 'Hi {{supplier}},\n\nPlease confirm whether the promised shipping date of {{ship_date}} is still valid for purchase order {{po}}.\n\nIf the date has changed, please reply with the new shipping date. If the order has shipped, please send the tracking details.\n\nThank you,\n{{sender}}\n{{company}}' },
       reminder: { subject: 'Reminder: shipping update needed · {{po}}', body: 'Hi {{supplier}},\n\nWe have not received an update for purchase order {{po}}, which was due to ship on {{ship_date}}. Please explain why it has not shipped and confirm the new shipping date.\n\nThank you,\n{{sender}}\n{{company}}' },
