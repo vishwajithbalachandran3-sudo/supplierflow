@@ -23,7 +23,7 @@ test('import maps the required five columns and rejects invalid rows and duplica
   assert.equal(C.validateRows([valid,valid],map).errors.length,1);
   const wrong=[...valid];wrong[4]='2026-02-31';assert.match(C.validateRows([wrong],map).errors[0],/Excel date/);
 });
-test('automation respects no-reply delays, revised dates, drafts, and escalation',()=>{
+test('automation repeats until any reply, then stops without acknowledgement',()=>{
   const now=new Date('2026-10-11T12:00:00Z'),s=structuredClone(C.defaults);
   const order={shipDate:'2026-10-01',shipped:false,messages:[],email:'ops@example.com',automationEnabled:true};
   assert.equal(C.automationAction(order,s,now),'initial');
@@ -31,9 +31,9 @@ test('automation respects no-reply delays, revised dates, drafts, and escalation
   assert.equal(C.automationAction(order,s,now),null);
   order.lastSent='2026-10-08T12:00:00Z';order.firstSent=order.lastSent;
   assert.equal(C.automationAction(order,s,now),'reminder');
-  order.firstSent='2026-10-05T12:00:00Z';assert.equal(C.automationAction(order,s,now),'escalate');
+  order.reminders=s.maxReminders;assert.equal(C.automationAction(order,s,now),'escalate');
   order.escalated=true;assert.equal(C.automationAction(order,s,now),null);
-  order.lastReply='2026-10-11T10:00:00Z';order.revisedDate='2026-10-15';
+  order.reminders=0;order.escalated=false;order.lastReply='2026-10-11T10:00:00Z';order.revisedDate='2026-10-15';
   assert.equal(C.waiting(order),false);assert.equal(C.automationAction(order,s,now),null);
   order.revisedDate='2026-10-10';assert.equal(C.automationAction(order,s,now),null);
   order.draft={body:'test'};assert.equal(C.automationAction(order,s,now),null);

@@ -53,11 +53,9 @@ function runSupplierflow() {
     if (!config.enabled || order.automationEnabled === false || order.shipped || !order.email) return;
     inspectReplies_(order);
     if (order.shipped || order.lastReply && (!order.lastSent || new Date(order.lastReply) > new Date(order.lastSent))) return;
-    const shipDate = order.revisedDate || order.shipDate;
-    const overdue = new Date(`${shipDate}T23:59:59`) < now;
     let type = '';
     if (!order.lastSent) type = 'initial';
-    else if (overdue && days_(order.lastSent, now) >= Number(config.reminderDays || 2) && Number(order.reminders || 0) < Number(config.maxReminders || 3)) type = 'reminder';
+    else if (days_(order.lastSent, now) >= Number(config.reminderDays || 2) && Number(order.reminders || 0) < Number(config.maxReminders || 3)) type = 'reminder';
     if (!type) return;
     const template = config.templates[type], values = {supplier:order.supplier,supplier_code:order.supplierCode,po:order.po,ship_date:order.shipDate,revised_date:order.revisedDate || 'to be confirmed',sender:config.senderName,company:config.company};
     const subject = fill_(template.subject, values), body = fill_(template.body, values);
@@ -77,8 +75,13 @@ function inspectReplies_(order) {
   if (!newest) return;
   const text = newest.getPlainBody(); order.lastReply = newest.getDate().toISOString();
   if (/\b(shipped|dispatched|in transit|tracking)\b/i.test(text)) order.shipped = true;
-  const match = text.match(/\b(20\d{2})[-\/.](0?[1-9]|1[0-2])[-\/.](0?[1-9]|[12]\d|3[01])\b/);
-  if (match) order.revisedDate = `${match[1]}-${String(match[2]).padStart(2,'0')}-${String(match[3]).padStart(2,'0')}`;
+  const iso = text.match(/\b(20\d{2})[-\/.](0?[1-9]|1[0-2])[-\/.](0?[1-9]|[12]\d|3[01])\b/);
+  const us = text.match(/\b(0?[1-9]|1[0-2])[-\/](0?[1-9]|[12]\d|3[01])[-\/](20\d{2})\b/);
+  const named = text.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?,?\s+(20\d{2})\b/i);
+  if (iso) order.revisedDate = `${iso[1]}-${String(iso[2]).padStart(2,'0')}-${String(iso[3]).padStart(2,'0')}`;
+  else if (us) order.revisedDate = `${us[3]}-${String(us[1]).padStart(2,'0')}-${String(us[2]).padStart(2,'0')}`;
+  else if (named) order.revisedDate = `${named[3]}-${String(['january','february','march','april','may','june','july','august','september','october','november','december'].indexOf(named[1].toLowerCase()) + 1).padStart(2,'0')}-${String(named[2]).padStart(2,'0')}`;
+  order.dateConfirmedValid = !order.revisedDate && /\b(date|shipping date|ship date)\b.{0,30}\b(still valid|valid|confirmed|unchanged|same)\b|\b(still valid|valid|confirmed|unchanged|same)\b.{0,30}\b(date|shipping date|ship date)\b/i.test(text);
 }
 
 function authorize_(key) { if (!key || key !== PropertiesService.getScriptProperties().getProperty('SUPPLIERFLOW_KEY')) throw new Error('Unauthorized'); }

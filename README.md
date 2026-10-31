@@ -20,8 +20,8 @@ Open http://localhost:4173. No build step is required.
 - A fixed application workspace with an order inspector on desktop and order drawers on smaller screens.
 - Local XLSX, XLS, and CSV import with five required fields: Supplier Name, Supplier Code, Supplier Email, Shipping Date, and PO Number. Imports can replace all old orders or add new orders.
 - Personalized email templates and drafts. Drafts can be opened with a local email application. Simulated sending is explicitly labeled and never delivers email.
-- Supplier reply analysis detects revised shipping dates or shipped status and updates the order and conversation history.
-- Configurable two-day reminders and escalation rules, plus per-supplier automation toggles and reusable supplier email profiles.
+- Supplier reply analysis stops reminders on any reply, detects revised shipping dates or shipped status, and synchronizes those updates back into the order register for export.
+- Two-day reminders continue until any supplier reply arrives. A reply stops follow-ups; a detected new date updates the order, while a valid-date confirmation keeps the imported date. No automatic acknowledgement is sent.
 - Local persistence, CSV export, full workspace JSON backup/restore, sample-data reset confirmation, and accessible responsive dialogs.
 
 ## Prototype boundaries

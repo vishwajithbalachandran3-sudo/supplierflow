@@ -10,7 +10,7 @@ function selectOrder(id) {
 
 function orderInspector(o) {
   if(!o)return '';
-  const action=o.lastReply?'acknowledgement':o.lastSent?'reminder':'initial';
+  const action=o.lastSent?'reminder':'initial';
   const recent=o.messages.at(-1);
   return `<div class="inspector-head"><div><span class="inspector-kicker">ORDER DETAILS</span><h2>${esc(o.po)}</h2></div><div class="flex"><button class="icon-btn" data-action="edit-order" data-id="${esc(o.id)}" aria-label="Edit order">${icon('edit')}</button><button class="icon-btn" data-action="close-inspector" aria-label="Close detail panel">${icon('close')}</button></div></div>
   <div class="inspector-scroll"><div class="inspector-supplier"><div class="flex gap">${logo(o)}<div><h3>${esc(o.supplier)}</h3><p>${esc(o.supplierCode)} · ${o.email?esc(o.email):'Email not configured'}</p></div></div>${badge(o)}</div>
@@ -19,7 +19,7 @@ function orderInspector(o) {
   <div class="inspector-section"><div class="between"><h3>Latest message</h3>${recent?`<span class="tiny muted">${relative(recent.at)}</span>`:''}</div>${recent?`<div class="inspector-message"><div class="message-direction">${icon(recent.direction==='incoming'?'reply':'send')}${recent.direction==='incoming'?'Supplier reply':'Outgoing message'}<span>${recent.manual?'Recorded':'Demo'}</span></div><p>${esc(recent.body)}</p></div><button class="link-btn" data-action="open-conversation" data-id="${esc(o.id)}">Open conversation ${icon('arrow')}</button>`:'<p class="inspector-empty">No messages recorded for this order.</p>'}</div>
   ${o.draft?`<div class="inspector-section"><div class="between"><h3>Draft ready</h3><span class="tag green">Review</span></div><p class="draft-subject">${esc(o.draft.subject)}</p><button class="btn" data-action="draft" data-id="${esc(o.id)}">${icon('edit')}Review email draft</button></div>`:''}
   <div class="inspector-section"><h3>Quick actions</h3><button class="inspector-action" data-action="record-reply" data-id="${esc(o.id)}">${icon('reply')}Analyze reply / update date ${icon('chevron')}</button><button class="inspector-action" data-action="ship" data-id="${esc(o.id)}">${icon(o.shipped?'refresh':'checkCircle')}${o.shipped?'Reopen order':'Mark as shipped'} ${icon('chevron')}</button></div></div>
-  <div class="inspector-footer"><span>${icon('mail')} ${!o.email?'Add supplier email to enable':o.automationEnabled===false?'Supplier automation is off':'Ready for email connection'}</span><button class="btn primary" data-action="draft" data-id="${esc(o.id)}" data-type="${action}" ${!o.email||o.automationEnabled===false?'disabled':''}>${icon('edit')}${o.draft?'Review draft':action==='acknowledgement'?'Acknowledge update':action==='reminder'?'Prepare reminder':'Confirm shipping date'}</button></div>`;
+  <div class="inspector-footer"><span>${icon('mail')} ${!o.email?'Add supplier email to enable':o.automationEnabled===false?'Supplier automation is off':o.lastReply?'Supplier replied · automation stopped':'Waiting for supplier reply'}</span><button class="btn primary" data-action="draft" data-id="${esc(o.id)}" data-type="${action}" ${!o.email||o.automationEnabled===false||o.lastReply?'disabled':''}>${icon('edit')}${o.lastReply?'Reply received':o.draft?'Review draft':action==='reminder'?'Prepare reminder':'Confirm shipping date'}</button></div>`;
 }
 
 function followupsPage() {
@@ -83,3 +83,4 @@ document.addEventListener('submit',e=>{
 const route=location.hash.slice(1);if(pages[route])ui.page=route;
 window.addEventListener('hashchange',()=>{const page=location.hash.slice(1);if(pages[page]&&page!==ui.page)go(page);});
 render();
+setTimeout(()=>refreshGmailUpdates(false),800);

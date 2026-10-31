@@ -7,7 +7,7 @@
     emailProvider: '', fromEmail: '', ccEmails: '', gmailScriptUrl: '', gmailAccessKey: '', liveEmailEnabled: false,
     templates: {
       initial: { subject: 'Please confirm shipping date · {{po}}', body: 'Hi {{supplier}},\n\nPlease confirm whether the promised shipping date of {{ship_date}} is still valid for purchase order {{po}}.\n\nIf the date has changed, please reply with the new shipping date. If the order has shipped, please send the tracking details.\n\nThank you,\n{{sender}}\n{{company}}' },
-      reminder: { subject: 'Reminder: shipping update needed · {{po}}', body: 'Hi {{supplier}},\n\nWe have not received an update for purchase order {{po}}, which was due to ship on {{ship_date}}. Please explain why it has not shipped and confirm the new shipping date.\n\nThank you,\n{{sender}}\n{{company}}' },
+      reminder: { subject: 'Reminder: please confirm shipping date · {{po}}', body: 'Hi {{supplier}},\n\nWe are still waiting for confirmation on purchase order {{po}}. Is the shipping date of {{ship_date}} still valid?\n\nIf the date changed, please reply with the new shipping date. Once you reply, our automatic reminders will stop.\n\nThank you,\n{{sender}}\n{{company}}' },
       acknowledgement: { subject: 'Re: Shipping update · {{po}}', body: 'Hi {{supplier}},\n\nThank you for the update on purchase order {{po}}. We recorded the revised shipping date as {{revised_date}}.\n\nPlease let us know if this changes and send tracking details when it ships.\n\nBest,\n{{sender}}\n{{company}}' }
     }
   };
@@ -50,15 +50,12 @@
   }
   function automationAction(order, settings, now = new Date()) {
     if (!settings.enabled || order.automationEnabled === false || !order.email || order.shipped || order.draft) return null;
-    if (!order.lastSent && !order.lastReply) return 'initial';
-    if (!overdue(order, isoDate(now))) return null;
-    if (waiting(order)) {
-      const firstSent = order.firstSent || order.lastSent;
-      if ((+now - Date.parse(firstSent)) / DAY >= settings.escalationDays || (order.reminders || 0) >= settings.maxReminders) return order.escalated ? null : 'escalate';
-      return (+now - Date.parse(order.lastSent)) / DAY >= settings.reminderDays ? 'reminder' : null;
-    }
-    if (order.lastReply && (+now - Date.parse(order.lastReply)) / DAY < settings.reminderDays) return null;
-    return 'initial';
+    // Any supplier reply ends the follow-up sequence. A revised date, when found,
+    // is stored separately and no acknowledgement email is generated.
+    if (order.lastReply) return null;
+    if (!order.lastSent) return 'initial';
+    if ((order.reminders || 0) >= settings.maxReminders) return order.escalated ? null : 'escalate';
+    return (+now - Date.parse(order.lastSent)) / DAY >= settings.reminderDays ? 'reminder' : null;
   }
   const aliases = {
     supplier: ['supplier', 'suppliername', 'vendor', 'vendorname', 'company'],
