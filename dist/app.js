@@ -281,7 +281,8 @@ async function syncGmailAutomation(runNow=true) {
 }
 async function eraseGmailOrderData() {
   const s=state.settings;if(!s.liveEmailEnabled||!s.gmailScriptUrl||!s.gmailAccessKey)return true;
-  try{await fetch(s.gmailScriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({payload:JSON.stringify({action:'erase',key:s.gmailAccessKey})})});return true;}catch{return false;}
+  const payload={action:'sync',key:s.gmailAccessKey,runNow:false,orders:[],config:{enabled:false,reminderDays:s.reminderDays||2,senderName:s.senderName,company:s.company,ccEmails:'',templates:s.templates}};
+  try{await fetch(s.gmailScriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({payload:JSON.stringify(payload)})});return true;}catch{return false;}
 }
 async function eraseUploadedData(showResult=true) {
   const remoteOk=await eraseGmailOrderData();
