@@ -54,7 +54,6 @@
     // is stored separately and no acknowledgement email is generated.
     if (order.lastReply) return null;
     if (!order.lastSent) return 'initial';
-    if ((order.reminders || 0) >= settings.maxReminders) return order.escalated ? null : 'escalate';
     return (+now - Date.parse(order.lastSent)) / DAY >= settings.reminderDays ? 'reminder' : null;
   }
   const aliases = {

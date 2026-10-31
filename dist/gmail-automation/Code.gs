@@ -55,7 +55,7 @@ function runSupplierflow() {
     if (order.shipped || order.lastReply && (!order.lastSent || new Date(order.lastReply) > new Date(order.lastSent))) return;
     let type = '';
     if (!order.lastSent) type = 'initial';
-    else if (days_(order.lastSent, now) >= Number(config.reminderDays || 2) && Number(order.reminders || 0) < Number(config.maxReminders || 3)) type = 'reminder';
+    else if (days_(order.lastSent, now) >= Number(config.reminderDays || 2)) type = 'reminder';
     if (!type) return;
     const template = config.templates[type], values = {supplier:order.supplier,supplier_code:order.supplierCode,po:order.po,ship_date:order.shipDate,revised_date:order.revisedDate || 'to be confirmed',sender:config.senderName,company:config.company};
     const subject = fill_(template.subject, values), body = fill_(template.body, values);

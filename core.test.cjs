@@ -31,9 +31,8 @@ test('automation repeats until any reply, then stops without acknowledgement',()
   assert.equal(C.automationAction(order,s,now),null);
   order.lastSent='2026-10-08T12:00:00Z';order.firstSent=order.lastSent;
   assert.equal(C.automationAction(order,s,now),'reminder');
-  order.reminders=s.maxReminders;assert.equal(C.automationAction(order,s,now),'escalate');
-  order.escalated=true;assert.equal(C.automationAction(order,s,now),null);
-  order.reminders=0;order.escalated=false;order.lastReply='2026-10-11T10:00:00Z';order.revisedDate='2026-10-15';
+  order.reminders=20;assert.equal(C.automationAction(order,s,now),'reminder');
+  order.lastReply='2026-10-11T10:00:00Z';order.revisedDate='2026-10-15';
   assert.equal(C.waiting(order),false);assert.equal(C.automationAction(order,s,now),null);
   order.revisedDate='2026-10-10';assert.equal(C.automationAction(order,s,now),null);
   order.draft={body:'test'};assert.equal(C.automationAction(order,s,now),null);
