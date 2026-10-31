@@ -19,6 +19,13 @@ function doPost(e) {
       return json_({ok:true, message:'Orders synchronized'});
     }
     if (request.action === 'run') { runSupplierflow(); return json_({ok:true}); }
+    if (request.action === 'erase') {
+      const properties = PropertiesService.getScriptProperties();
+      properties.deleteProperty(STORE_KEY);
+      properties.deleteProperty(CONFIG_KEY);
+      properties.deleteProperty('LAST_RUN');
+      return json_({ok:true, message:'Supplierflow order data erased'});
+    }
     return json_({ok:false, error:'Unknown action'});
   } catch (error) { return json_({ok:false, error:String(error.message || error)}); }
 }

@@ -22,7 +22,8 @@ Open http://localhost:4173. No build step is required.
 - Personalized email templates and drafts. Drafts can be opened with a local email application. Simulated sending is explicitly labeled and never delivers email.
 - Supplier reply analysis stops reminders on any reply, detects revised shipping dates or shipped status, and synchronizes those updates back into the order register for export.
 - Two-day reminders continue until any supplier reply arrives. A reply stops follow-ups; a detected new date updates the order, while a valid-date confirmation keeps the imported date. No automatic acknowledgement is sent.
-- Local persistence, CSV export, full workspace JSON backup/restore, sample-data reset confirmation, and accessible responsive dialogs.
+- Local persistence, CSV export, full workspace JSON backup/restore, and accessible responsive dialogs.
+- A permanent data-erasure control clears uploaded orders, supplier rows, app inbox history, drafts, replies, activity, and the connected Gmail automation's stored order data while leaving real Gmail messages untouched.
 
 ## Prototype boundaries
 

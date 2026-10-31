@@ -83,4 +83,5 @@ document.addEventListener('submit',e=>{
 const route=location.hash.slice(1);if(pages[route])ui.page=route;
 window.addEventListener('hashchange',()=>{const page=location.hash.slice(1);if(pages[page]&&page!==ui.page)go(page);});
 render();
-setTimeout(()=>refreshGmailUpdates(false),800);
+if(pendingInitialErase)setTimeout(()=>eraseGmailOrderData(),500);
+else setTimeout(()=>refreshGmailUpdates(false),800);
