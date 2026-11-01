@@ -39,7 +39,7 @@ const icons = {
 };
 const icon = (name, cls = '') => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.box}</svg>`;
 const key = 'supplierflow.workspace.v1';
-const DATA_RESET_VERSION = 2;
+const DATA_RESET_VERSION = 3;
 let storageWarning = false;
 let pendingInitialErase = false;
 function loadState() {

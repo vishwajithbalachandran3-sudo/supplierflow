@@ -122,7 +122,7 @@
     ]};
   }
   function blankState() {
-    return {version:1, orders:[], settings:structuredClone(defaults), lastCheck:null, mode:'local', activity:[], dataResetVersion:2};
+    return {version:1, orders:[], settings:structuredClone(defaults), lastCheck:null, mode:'local', activity:[], dataResetVersion:3};
   }
   const api = {DAY,defaults,isoDate,offsetDate,parseDate,daysBetween,effectiveDate,overdue,waiting,stage,matches,interpolate,draftFor,automationAction,mapHeaders,validateRows,csvCell,exportCsv,analyzeReply,sampleState,blankState};
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SupplierCore = api;
