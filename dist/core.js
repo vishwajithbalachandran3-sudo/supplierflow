@@ -121,6 +121,9 @@
       {id:'a4',type:'import',title:'24 purchase orders imported',detail:'purchase_orders_october.xlsx · sample file',at:ago(0,4)}
     ]};
   }
-  const api = {DAY,defaults,isoDate,offsetDate,parseDate,daysBetween,effectiveDate,overdue,waiting,stage,matches,interpolate,draftFor,automationAction,mapHeaders,validateRows,csvCell,exportCsv,analyzeReply,sampleState};
+  function blankState() {
+    return {version:1, orders:[], settings:structuredClone(defaults), lastCheck:null, mode:'local', activity:[], dataResetVersion:2};
+  }
+  const api = {DAY,defaults,isoDate,offsetDate,parseDate,daysBetween,effectiveDate,overdue,waiting,stage,matches,interpolate,draftFor,automationAction,mapHeaders,validateRows,csvCell,exportCsv,analyzeReply,sampleState,blankState};
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SupplierCore = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

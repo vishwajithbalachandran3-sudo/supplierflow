@@ -39,12 +39,12 @@ const icons = {
 };
 const icon = (name, cls = '') => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.box}</svg>`;
 const key = 'supplierflow.workspace.v1';
-const DATA_RESET_VERSION = 1;
+const DATA_RESET_VERSION = 2;
 let storageWarning = false;
 let pendingInitialErase = false;
 function loadState() {
   try { const s = JSON.parse(localStorage.getItem(key)); if (s?.version===1&&Array.isArray(s.orders)) {s.orders.forEach((o,i)=>{o.supplierCode ||= `SUP-${String((i%999)+1).padStart(3,'0')}`;o.item='';if(o.automationEnabled===undefined)o.automationEnabled=true;s.settings.emailProvider??='';s.settings.fromEmail??='';s.settings.ccEmails??='';s.settings.gmailScriptUrl??='';s.settings.gmailAccessKey??='';s.settings.liveEmailEnabled??=false;});if(s.settings.templates?.reminder?.body?.includes('which was due to ship on'))s.settings.templates.reminder=structuredClone(C.defaults.templates.reminder);if(s.dataResetVersion!==DATA_RESET_VERSION){s.orders=[];s.activity=[];s.lastCheck=null;s.mode='local';s.dataResetVersion=DATA_RESET_VERSION;pendingInitialErase=true;}if(validBackup(s))return s;} } catch { storageWarning = true; }
-  return C.sampleState();
+  return C.blankState();
 }
 let state = loadState();
 state.dataResetVersion ??= DATA_RESET_VERSION;
@@ -319,7 +319,7 @@ function searchResults(q) {
   $('#global-results').innerHTML=q?arr.map(o=>`<button data-action="order" data-id="${esc(o.id)}"><div class="flex gap">${logo(o)}<div><div class="small strong">${esc(o.supplier)} <span class="muted">· ${esc(o.po)}</span></div><div class="tiny muted" style="margin-top:4px">${esc(o.supplierCode)}</div></div></div>${badge(o)}</button>`).join('')||'<p class="small muted">No orders match that search.</p>':'<p class="small muted">Start typing to find an order.</p>';
 }
 function resetConfirmation() {
-  showModal('Start again with sample orders?','This replaces the orders and settings saved on this device.',`<p class="small muted">Your ${state.orders.length} orders, conversations, drafts, and custom templates will be replaced. Download a workspace backup first if you want to keep them.</p>`,`<button class="btn" data-action="backup">${icon('download')}Back up first</button><div class="footer-stack"><button class="btn" data-action="close">Cancel</button><button class="btn danger" data-action="confirm-reset">Replace with sample data</button></div>`);
+  showModal('Delete all workspace data?','This permanently removes the uploaded orders and related app records from this device.',`<p class="small muted">Your ${state.orders.length} orders, suppliers, conversations, drafts, and activity will be erased. Your email connection settings will remain available.</p>`,`<button class="btn" data-action="backup">${icon('download')}Back up first</button><div class="footer-stack"><button class="btn" data-action="close">Cancel</button><button class="btn danger" data-action="confirm-delete-data">Delete all data</button></div>`);
 }
 function validBackup(s) {
   const str=(v,max=100000)=>typeof v==='string'&&v.length<=max;
@@ -390,9 +390,9 @@ document.addEventListener('click',e=>{
     case'reset-template':$('#template-subject').value=C.defaults.templates[ui.template].subject;$('#template-body').value=C.defaults.templates[ui.template].body;updateTemplatePreview();toast('Default restored in the editor. Save to apply.');break;
     case'backup':downloadBlob(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),`supplierflow-backup-${C.isoDate()}.json`);toast('Workspace backup downloaded.');break;
     case'reset':resetConfirmation();break;
+    case'confirm-delete-data':eraseUploadedData(true);break;
     case'erase-data':showModal('Delete all uploaded data?','This permanently clears Supplierflow order data.',`<div class="notice">All imported orders, supplier rows, app inbox conversations, drafts, reply history, and activity will be erased from this browser and the connected Gmail automation. Your Gmail messages and connection settings will remain.</div>`,`<button class="btn" data-action="close">Cancel</button><button class="btn primary" data-action="confirm-erasure">Delete all data</button>`);break;
     case'confirm-erasure':eraseUploadedData(true);break;
-    case'confirm-reset':state=C.sampleState();save();go('overview');toast('Sample workspace restored.');break;
     case'confirm-restore':if(pendingBackup){state=pendingBackup;pendingBackup=null;save();go('overview');toast('Your workspace has been restored.');}break;
   }
 });

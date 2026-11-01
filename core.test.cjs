@@ -1,6 +1,12 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const C=require('./dist/core.js');
+test('a new workspace starts empty and never loads demo purchase orders',()=>{
+  const state=C.blankState();
+  assert.equal(state.orders.length,0);
+  assert.equal(state.activity.length,0);
+  assert.equal(state.mode,'local');
+});
 test('calendar dates are validated without silent rollover',()=>{
   assert.equal(C.parseDate('2026-02-30'),'');
   assert.equal(C.parseDate('2024-02-29'),'2024-02-29');
