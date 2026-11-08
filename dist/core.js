@@ -2,7 +2,7 @@
   'use strict';
   const DAY = 86400000;
   const defaults = {
-    enabled: true, reminderDays: 2, escalationDays: 5, maxReminders: 3,
+    enabled: true, reminderDays: 1, escalationDays: 5, maxReminders: 3,
     senderName: 'Purchasing team', company: 'Acme Operations',
     emailProvider: '', fromEmail: '', ccEmails: '', gmailScriptUrl: '', gmailAccessKey: '', liveEmailEnabled: false,
     templates: {
@@ -122,7 +122,7 @@
     ]};
   }
   function blankState() {
-    return {version:1, orders:[], settings:structuredClone(defaults), lastCheck:null, mode:'local', activity:[], dataResetVersion:3};
+    return {version:1, orders:[], settings:structuredClone(defaults), lastCheck:null, mode:'local', activity:[], dataResetVersion:3, reminderPolicyVersion:1};
   }
   const api = {DAY,defaults,isoDate,offsetDate,parseDate,daysBetween,effectiveDate,overdue,waiting,stage,matches,interpolate,draftFor,automationAction,mapHeaders,validateRows,csvCell,exportCsv,analyzeReply,sampleState,blankState};
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SupplierCore = api;

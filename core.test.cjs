@@ -33,8 +33,11 @@ test('automation repeats until any reply, then stops without acknowledgement',()
   const now=new Date('2026-10-11T12:00:00Z'),s=structuredClone(C.defaults);
   const order={shipDate:'2026-10-01',shipped:false,messages:[],email:'ops@example.com',automationEnabled:true};
   assert.equal(C.automationAction(order,s,now),'initial');
-  order.lastSent='2026-10-10T12:00:00Z';order.firstSent=order.lastSent;
+  assert.equal(s.reminderDays,1);
+  order.lastSent='2026-10-11T00:00:00Z';order.firstSent=order.lastSent;
   assert.equal(C.automationAction(order,s,now),null);
+  order.lastSent='2026-10-10T12:00:00Z';order.firstSent=order.lastSent;
+  assert.equal(C.automationAction(order,s,now),'reminder');
   order.lastSent='2026-10-08T12:00:00Z';order.firstSent=order.lastSent;
   assert.equal(C.automationAction(order,s,now),'reminder');
   order.reminders=20;assert.equal(C.automationAction(order,s,now),'reminder');

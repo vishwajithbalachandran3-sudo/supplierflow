@@ -40,6 +40,7 @@ const icons = {
 const icon = (name, cls = '') => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.box}</svg>`;
 const key = 'supplierflow.workspace.v1';
 const DATA_RESET_VERSION = 3;
+const REMINDER_POLICY_VERSION = 1;
 let storageWarning = false;
 let pendingInitialErase = false;
 function loadState() {
@@ -48,6 +49,7 @@ function loadState() {
 }
 let state = loadState();
 state.dataResetVersion ??= DATA_RESET_VERSION;
+if(state.reminderPolicyVersion!==REMINDER_POLICY_VERSION){state.settings.reminderDays=1;state.reminderPolicyVersion=REMINDER_POLICY_VERSION;try{localStorage.setItem(key,JSON.stringify(state));}catch{storageWarning=true;}}
 if(pendingInitialErase)localStorage.setItem(key,JSON.stringify(state));
 let ui = {page:'orders',filter:'all',orderId:state.orders.find(o=>C.overdue(o))?.id||null,queueFilter:'all',sort:'oldest',search:'',pageNumber:1,selected:new Set(),thread:null,template:'initial',mobile:false};
 let upload = null, focusBeforeModal = null, toastTimeout;
@@ -87,6 +89,10 @@ function render() {
   <div class="main-shell"><header class="topbar"><div class="breadcrumb"><button class="icon-btn mobile-menu" data-action="menu" aria-label="Toggle navigation" aria-expanded="${ui.mobile}">${icon('menu')}</button><span>Purchasing</span>${icon('chevron')}<span class="current">${pages[ui.page]}</span></div><div class="header-actions"><button class="global-search" data-action="search" aria-label="Search purchase orders">${icon('search')}<span>Search orders</span><kbd>Ctrl K</kbd></button><span class="separator"></span><button class="icon-btn" data-action="activity" aria-label="View activity">${icon('bell')}${state.activity.length?'<span class="notify-indicator"></span>':''}</button><button class="icon-btn" data-action="nav" data-page="settings" aria-label="Workspace settings"><span class="avatar">${esc(initials(state.settings.senderName))}</span></button></div></header>
   <main class="content view-${ui.page}" id="main-content">${renderPage()}</main><footer class="app-status"><span><i class="dot"></i>${storageWarning?'Storage unavailable':state.mode==='demo'?'Sample data':state.mode==='mixed'?'Sample + imported data':'Local workspace'}<b>·</b> ${state.orders.length} orders</span><span>${icon('shield')} Stored on this device <b>·</b> Email delivery: demo</span></footer></div>`;
   if(ui.page==='templates')updateTemplatePreview();
+  if(ui.page==='automations'){
+    const notice=$('#main-content > .notice.info');
+    if(notice)notice.textContent='The first email asks whether the shipping date is still valid. If there is no reply, a reminder is sent after one day. Any supplier reply stops the reminders automatically.';
+  }
 }
 
 function heading(title,subtitle,actions='',eyebrow='') {return `<div class="page-heading"><div>${eyebrow?`<div class="eyebrow">${eyebrow}</div>`:''}<h1>${title}</h1><p>${subtitle}</p></div>${actions?`<div class="heading-actions">${actions}</div>`:''}</div>`;}
@@ -281,7 +287,7 @@ async function syncGmailAutomation(runNow=true) {
 }
 async function eraseGmailOrderData() {
   const s=state.settings;if(!s.liveEmailEnabled||!s.gmailScriptUrl||!s.gmailAccessKey)return true;
-  const payload={action:'sync',key:s.gmailAccessKey,runNow:false,orders:[],config:{enabled:false,reminderDays:s.reminderDays||2,senderName:s.senderName,company:s.company,ccEmails:'',templates:s.templates}};
+  const payload={action:'sync',key:s.gmailAccessKey,runNow:false,orders:[],config:{enabled:false,reminderDays:s.reminderDays||1,senderName:s.senderName,company:s.company,ccEmails:'',templates:s.templates}};
   try{await fetch(s.gmailScriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({payload:JSON.stringify(payload)})});return true;}catch{return false;}
 }
 async function eraseUploadedData(showResult=true) {
